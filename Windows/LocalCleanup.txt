@@ -1,0 +1,30 @@
+$allowedUsers = @("DonVito", "DonMichael", "Fredo", "Sonny", "LucaBrasi", "JohnnyFontane", "Pete", "Emilio", "Salvatore")
+
+$allUsers = Get-LocalUser
+
+foreach ($user in $allUsers) {
+    if ($allowedUsers -notcontains $user.Name) {
+	$confirmation = Read-Host "Disable $user.Name (Y/N)"
+
+	if ($confirmation -eq 'Y' -or $confirmation -eq 'y') {
+  	  	Disable-LocalUser -Name $user.Name
+        	Write-Host "Disabled user: $user.Name"
+	} else {
+    		Write-Host "Failed to Disable user: $user.Name"
+	}
+        
+    }
+}
+
+$allowedAdmins = @("Administrator", "DonVito", "DonMichael", "Fredo", "Sonny")
+
+
+foreach($admin in $currentAdmins) {
+	if ($allowedAdmins -notcontains $admin.name.substring([System.Net.Dns]::GetHostName().Length + 1)) {
+        	Remove-LocalGroupMember -Group "Administrators" -Member $admin.substring([System.Net.Dns]::GetHostName().Length+1)
+        	Write-Host "Removed $admin from the Administrators group."
+     	}
+	else {
+		Write-Host "Read $admin and did not remove"
+	}
+}

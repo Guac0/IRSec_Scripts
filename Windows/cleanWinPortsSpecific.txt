@@ -1,0 +1,24 @@
+# List of fishy ports to close
+$closePorts = @(139, 445)
+
+# Check if the Windows Firewall module is available
+if (Get-Module -Name NetSecurity -ListAvailable) {
+    Import-Module NetSecurity
+}
+
+# Loop through the port range and create rules to close all ports except the open port
+forEach ($port in $closePorts) {
+    if ($closePorts -contains $port) {
+        # Check if a firewall rule already exists for the port
+	$existingRule = Get-NetFirewallRule -DisplayName "Block Port $port"
+        if ($existingRule) {
+		Enable-NetFirewallRule -Name $existingRule.Name
+        } else {
+            # If the rule doesn't exist, create a new rule to block incoming traffic on the specified port
+            New-NetFirewallRule -DisplayName "Block Port $port" -Direction Inbound -Action Block -Protocol TCP -LocalPort $port
+        }
+	Write-Host "Port $port is now closed."
+        
+}
+
+Write-Host "Ports $closePorts are closed."

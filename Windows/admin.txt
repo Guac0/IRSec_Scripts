@@ -1,0 +1,21 @@
+# Define a list of unauthorized administrator usernames
+$authorizedAdmins = @("DonVito", "DonMichael", "Fredo", "Sonny")
+
+# Check if the script is running with elevated privileges
+$isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
+
+if (-not $isAdmin) {
+    Write-Host "Please run this script with administrator privileges."
+    Exit
+}
+
+# Disable unauthorized administrator accounts
+foreach ($admin in $authorizedAdmins) {
+    # Check if the user exists before disabling
+    if (Get-LocalUser -Name $admin.substring([System.Net.Dns]::GetHostName().Length + 1) -ErrorAction SilentlyContinue) {
+        Disable-LocalUser -Name $admin.substring([System.Net.Dns]::GetHostName().Length + 1)
+        Write-Host "Disabled unauthorized administrator account: $admin"
+    } else {
+        Write-Host "User $admin not found, skipping."
+    }
+}

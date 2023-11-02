@@ -1,0 +1,17 @@
+# Import the CSV file with user passwords
+$userPasswords = Import-Csv -Path ".\user_passwords.csv"
+
+# Loop through the CSV and change passwords for each user
+foreach ($user in $userPasswords) {
+    $username = $user.USERNAME
+    $newPassword = $user.PASSWORD
+
+    # Check if the user exists
+    if (Get-ADUser -Filter {SamAccountName -eq $username}) {
+        # Change the user's password
+        Set-ADAccountPassword -Identity $username -NewPassword (ConvertTo-SecureString -AsPlainText $newPassword -Force) -Reset
+        Write-Host "Password changed for user: $username"
+    } else {
+        Write-Host "User not found: $username"
+    }
+}
